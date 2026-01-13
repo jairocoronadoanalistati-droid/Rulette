@@ -343,7 +343,7 @@ export default function WheelOfFortune() {
                         <img
                           src={PRIZES[carouselIndex].image}
                           alt={PRIZES[carouselIndex].name}
-                          className="w-1/2 h-full object-cover"
+                          className="w-1/2 h-full object-contain p-2"
                         />
                         <div className="w-1/2 p-6 flex flex-col justify-center">
                           <motion.h3
