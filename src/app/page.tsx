@@ -80,7 +80,7 @@ export default function WheelOfFortune() {
   // Auto-rotate carousel
   useEffect(() => {
     carouselIntervalRef.current = setInterval(() => {
-      setCarouselIndex((prev) => (prev + 1) % PRIZES.length)
+      setCarouselIndex((prev) => (prev + 5) % PRIZES.length)
     }, 3000) // Change every 3 seconds
 
     return () => {
@@ -343,7 +343,7 @@ export default function WheelOfFortune() {
                         <img
                           src={PRIZES[carouselIndex].image}
                           alt={PRIZES[carouselIndex].name}
-                          className="w-1/2 h-full object-contain p-2"
+                          className="w-2/5 h-full object-contain p-3"
                         />
                         <div className="w-1/2 p-6 flex flex-col justify-center">
                           <motion.h3
