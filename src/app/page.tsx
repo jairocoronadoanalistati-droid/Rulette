@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 type Screen = 'validation' | 'version' | 'wheel' | 'grid' | 'question' | 'form' | 'confirmation'
@@ -72,8 +72,23 @@ export default function WheelOfFortune() {
   const [isGridSpinning, setIsGridSpinning] = useState(false)
   const [currentHighlightIndex, setCurrentHighlightIndex] = useState<number | null>(null)
   const [showPlayButton, setShowPlayButton] = useState(true)
+  const [carouselIndex, setCarouselIndex] = useState(0)
   const wheelRef = useRef<HTMLDivElement>(null)
   const gridIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const carouselIntervalRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Auto-rotate carousel
+  useEffect(() => {
+    carouselIntervalRef.current = setInterval(() => {
+      setCarouselIndex((prev) => (prev + 1) % PRIZES.length)
+    }, 3000) // Change every 3 seconds
+
+    return () => {
+      if (carouselIntervalRef.current) {
+        clearInterval(carouselIntervalRef.current)
+      }
+    }
+  }, [])
 
   const handleValidate = () => {
     setCurrentScreen('version')
@@ -177,6 +192,10 @@ export default function WheelOfFortune() {
       clearInterval(gridIntervalRef.current)
       gridIntervalRef.current = null
     }
+    if (carouselIntervalRef.current) {
+      clearInterval(carouselIntervalRef.current)
+      carouselIntervalRef.current = null
+    }
     setCurrentScreen('validation')
     setSelectedVersion(1)
     setWheelRotation(0)
@@ -191,6 +210,7 @@ export default function WheelOfFortune() {
     setIsGridSpinning(false)
     setCurrentHighlightIndex(null)
     setShowPlayButton(true)
+    setCarouselIndex(0)
   }
 
   return (
@@ -303,10 +323,62 @@ export default function WheelOfFortune() {
                   initial={{ y: -20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.2 }}
-                  className="text-3xl md:text-4xl font-bold text-[#0056b3] mb-8"
+                  className="text-3xl md:text-4xl font-bold text-[#0056b3] mb-6"
                 >
                   ¡Gira y Gana!
                 </motion.h1>
+
+                {/* Prize Carousel */}
+                <div className="relative w-full max-w-2xl mx-auto mb-8 overflow-hidden rounded-2xl shadow-2xl bg-white">
+                  <div className="relative h-48 md:h-64">
+                    <AnimatePresence mode="wait">
+                      <motion.div
+                        key={carouselIndex}
+                        initial={{ opacity: 0, x: 100 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -100 }}
+                        transition={{ duration: 0.5 }}
+                        className="absolute inset-0 flex items-center"
+                      >
+                        <img
+                          src={PRIZES[carouselIndex].image}
+                          alt={PRIZES[carouselIndex].name}
+                          className="w-1/2 h-full object-cover"
+                        />
+                        <div className="w-1/2 p-6 flex flex-col justify-center">
+                          <motion.h3
+                            initial={{ y: 20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ delay: 0.2 }}
+                            className="text-xl md:text-2xl font-bold text-[#0056b3] mb-3"
+                          >
+                            {PRIZES[carouselIndex].name}
+                          </motion.h3>
+                          <motion.p
+                            initial={{ y: 20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ delay: 0.3 }}
+                            className="text-gray-600 text-sm md:text-base"
+                          >
+                            ¡Gira la ruleta y podrías ganar este increíble premio!
+                          </motion.p>
+                        </div>
+                      </motion.div>
+                    </AnimatePresence>
+                  </div>
+                  {/* Carousel indicators */}
+                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                    {PRIZES.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setCarouselIndex(index)}
+                        className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                          index === carouselIndex ? 'bg-[#0056b3] w-6' : 'bg-white/50'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
 
                 <div className="relative flex justify-center items-center mb-8">
                   {/* Static Arrow - positioned above the wheel, doesn't rotate */}
